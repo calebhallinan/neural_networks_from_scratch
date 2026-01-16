@@ -1,0 +1,40 @@
+Pipeline: 
+    Input Image
+        |
+    Preprocess (Extract matrix, zeropadding)
+        |
+    Filter & Convolve
+        |
+    Pool the matrix
+        |
+    Flatten
+        |
+    Neural Network
+        |
+    Prob. Distribution
+        |
+    Decision via Max Odd
+
+    
+Convolution Neural Network Composition: 
+cnn_comp/
+├── layers/
+│   ├── conv.py
+│   ├── relu.py
+│   ├── pool.py
+│   ├── dense.py
+│   └── flatten.py
+├── loss/
+│   └── softmax_ce.py
+├── optim/
+│   ├── sgd.py
+│   └── adam.py
+├── data/
+│   ├── dataset.py
+│   └── loader.py
+├── model/
+│   └── sequential.py
+├── utils/
+│   ├── init.py
+│   └── gradcheck.py
+└── train.py
