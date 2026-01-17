@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SimpleCNN Architecture Visualization</title>
+    <style>
+        :root {
+            --bg-color: #ffffff;
+            --stroke-color: #333;
+            --highlight-color: #4a90e2;
+            --text-color: #222;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        h2 {
+            margin-bottom: 50px;
+            /* Increased to make room for the higher labels */
+            color: var(--text-color);
+        }
+
+        /* Main Container for the schematic */
+        .schematic-container {
+            position: relative;
+            display: flex;
+            align-items: flex-end;
+            /* Changed from center to flex-end to keep bottoms aligned */
+            justify-content: center;
+            padding: 40px;
+            gap: 60px;
+            /* Space between layers */
+            padding-top: 60px;
+            /* Extra space at top */
+        }
+
+        /* SVG Layer for connecting lines */
+        #connections {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .connection-line {
+            stroke: var(--stroke-color);
+            stroke-width: 1;
+            stroke-dasharray: 4;
+            opacity: 0.6;
+            fill: none;
+        }
+
+        /* Layer Groups (Column wrappers) */
+        .layer-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+            justify-content: flex-end;
+            /* Align content to bottom */
+        }
+
+        .layer-label {
+            /* UPDATED: Increased margin to push labels up */
+            margin-bottom: 35px;
+            font-size: 13px;
+            font-weight: bold;
+            color: var(--text-color);
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .layer-dims {
+            margin-top: 15px;
+            font-size: 11px;
+            color: #666;
+            font-family: monospace;
+        }
+
+        /* The 3D Stacks (Feature Maps) */
+        .stack-container {
+            position: relative;
+        }
+
+        .sheet {
+            background: white;
+            border: 1.5px solid var(--stroke-color);
+            position: absolute;
+            transition: transform 0.3s ease;
+        }
+
+        .sheet:first-child {
+            position: relative;
+        }
+
+        /* Dense/FC Layers */
+        .dense-container {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            padding: 5px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px dashed #ccc;
+            /* Added faint border to visualize the container */
+        }
+
+        .neuron {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 1.5px solid var(--stroke-color);
+            background: white;
+        }
+
+        .ellipsis {
+            text-align: center;
+            font-size: 14px;
+            line-height: 10px;
+            color: var(--stroke-color);
+            font-weight: bold;
+        }
+
+        /* Brackets Section */
+        .brackets-container {
+            display: flex;
+            width: 80%;
+            margin-top: 20px;
+            position: relative;
+            justify-content: space-between;
+        }
+
+        .bracket-group {
+            text-align: center;
+            position: relative;
+        }
+
+        .bracket-line {
+            border-bottom: 1px solid black;
+            border-left: 1px solid black;
+            border-right: 1px solid black;
+            height: 10px;
+            width: 100%;
+            margin-bottom: 5px;
+        }
+
+        .bracket-text {
+            font-weight: bold;
+            font-size: 14px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h2>SimpleCNN Architecture</h2>
+
+    <div class="schematic-container" id="schematic">
+        <svg id="connections"></svg>
+
+        <div class="layer-group">
+            <div class="layer-label">Input</div>
+            <div class="stack-container" id="layer-input" data-h="80" data-w="80" data-d="1"></div>
+            <div class="layer-dims">1x8x8</div>
+        </div>
+
+        <div class="layer-group">
+            <div class="layer-label">Conv2d<br>ReLU</div>
+            <div class="stack-container" id="layer-c1" data-h="80" data-w="80" data-d="5"></div>
+            <div class="layer-dims">16x8x8</div>
+        </div>
+
+        <div class="layer-group">
+            <div class="layer-label">Pool</div>
+            <div class="stack-container" id="layer-p1" data-h="50" data-w="50" data-d="5"></div>
+            <div class="layer-dims">16x4x4</div>
+        </div>
+
+        <div class="layer-group">
+            <div class="layer-label">Conv2d<br>ReLU</div>
+            <div class="stack-container" id="layer-c2" data-h="50" data-w="50" data-d="8"></div>
+            <div class="layer-dims">32x4x4</div>
+        </div>
+
+        <div class="layer-group">
+            <div class="layer-label">Pool</div>
+            <div class="stack-container" id="layer-p2" data-h="30" data-w="30" data-d="8"></div>
+            <div class="layer-dims">32x2x2</div>
+        </div>
+
+        <div class="layer-group">
+            <div class="layer-label">Conv2d<br>ReLU</div>
+            <div class="stack-container" id="layer-c3" data-h="30" data-w="30" data-d="12"></div>
+            <div class="layer-dims">64x2x2</div>
+        </div>
+
+        <div class="layer-group">
+            <div class="layer-label">Pool</div>
+            <div class="stack-container" id="layer-p3" data-h="15" data-w="15" data-d="12"></div>
+            <div class="layer-dims">64x1x1</div>
+        </div>
+
+        <div class="layer-group">
+            <div class="layer-label">FC 1</div>
+            <div class="dense-container" id="layer-fc1">
+                <div class="neuron"></div>
+                <div class="neuron"></div>
+                <div class="neuron"></div>
+                <div class="ellipsis">:</div>
+                <div class="neuron"></div>
+                <div class="neuron"></div>
+            </div>
+            <div class="layer-dims">512</div>
+        </div>
+
+        <div class="layer-group">
+            <div class="layer-label">FC 2</div>
+            <div class="dense-container" id="layer-fc2">
+                <div class="neuron"></div>
+                <div class="neuron"></div>
+                <div class="neuron"></div>
+                <div class="ellipsis">:</div>
+                <div class="neuron"></div>
+            </div>
+            <div class="layer-dims">256</div>
+        </div>
+
+        <div class="layer-group">
+            <div class="layer-label">Output</div>
+            <div class="dense-container" id="layer-out">
+                <div class="neuron"></div>
+                <div class="neuron"></div>
+                <div class="neuron"></div>
+                <div class="neuron"></div>
+                <div class="neuron"></div>
+            </div>
+            <div class="layer-dims">5 Classes</div>
+        </div>
+    </div>
+
+    <div class="brackets-container">
+        <div class="bracket-group" style="width: 60%; margin-left: 20px;">
+            <div class="bracket-line"></div>
+            <div class="bracket-text">Feature Extraction</div>
+        </div>
+        <div class="bracket-group" style="width: 25%; margin-right: 20px;">
+            <div class="bracket-line"></div>
+            <div class="bracket-text">Classification</div>
+        </div>
+    </div>
+
+    <script>
+        // 1. Render the Stacks (Feature Maps)
+        const stacks = document.querySelectorAll('.stack-container');
+        stacks.forEach(stack => {
+            const h = stack.dataset.h;
+            const w = stack.dataset.w;
+            const count = parseInt(stack.dataset.d);
+
+            // Create sheets
+            for (let i = 0; i < count; i++) {
+                const sheet = document.createElement('div');
+                sheet.className = 'sheet';
+                sheet.style.width = h + 'px';
+                sheet.style.height = w + 'px';
+
+                // Offset calculation for 3D effect (recending into background)
+                const offset = i * 4;
+                sheet.style.transform = `translate(${offset}px, -${offset}px)`;
+
+                // Stack Order: First child is front-most? No, usually last child is on top in DOM.
+                // To make the first sheet (i=0) appear in front, we set zIndex descending.
+                sheet.style.zIndex = count - i;
+                sheet.style.left = '0px';
+                sheet.style.top = '0px';
+
+                stack.appendChild(sheet);
+            }
+
+            // Adjust container size to fit the stack including the 3D offset
+            const maxOffset = (count - 1) * 4;
+            stack.style.width = (parseInt(w) + maxOffset) + 'px';
+            stack.style.height = (parseInt(h) + maxOffset) + 'px';
+        });
+
+        // 2. Draw Connection Lines
+        function drawConnections() {
+            const svg = document.getElementById('connections');
+            svg.innerHTML = ''; // Clear previous
+
+            const layerIds = [
+                'layer-input', 'layer-c1', 'layer-p1', 'layer-c2',
+                'layer-p2', 'layer-c3', 'layer-p3', 'layer-fc1',
+                'layer-fc2', 'layer-out'
+            ];
+
+            const containerRect = document.getElementById('schematic').getBoundingClientRect();
+
+            for (let i = 0; i < layerIds.length - 1; i++) {
+                const startEl = document.getElementById(layerIds[i]);
+                const endEl = document.getElementById(layerIds[i + 1]);
+
+                if (!startEl || !endEl) continue;
+
+                const r1 = startEl.getBoundingClientRect();
+                const r2 = endEl.getBoundingClientRect();
+
+                // Coordinates relative to SVG
+                // Logic: Connect Right edge of Source to Left edge of Target
+
+                // Source Points (Right side)
+                const x1 = r1.right - containerRect.left;
+                const y1_top = r1.top - containerRect.top + (r1.height * 0.15);
+                const y1_bot = r1.bottom - containerRect.top - (r1.height * 0.15);
+
+                // Target Points (Left side)
+                const x2 = r2.left - containerRect.left;
+                const y2_top = r2.top - containerRect.top + (r2.height * 0.15);
+                const y2_bot = r2.bottom - containerRect.top - (r2.height * 0.15);
+
+                // Draw Top Line
+                const line1 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                line1.setAttribute('x1', x1);
+                line1.setAttribute('y1', y1_top);
+                line1.setAttribute('x2', x2);
+                line1.setAttribute('y2', y2_top);
+                line1.classList.add('connection-line');
+                svg.appendChild(line1);
+
+                // Draw Bottom Line
+                const line2 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                line2.setAttribute('x1', x1);
+                line2.setAttribute('y1', y1_bot);
+                line2.setAttribute('x2', x2);
+                line2.setAttribute('y2', y2_bot);
+                line2.classList.add('connection-line');
+                svg.appendChild(line2);
+            }
+        }
+
+        // Draw on load and resize
+        window.addEventListener('load', drawConnections);
+        window.addEventListener('resize', drawConnections);
+        // Backup timeout for font loading
+        setTimeout(drawConnections, 100);
+    </script>
+</body>
+
+</html>
